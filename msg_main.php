@@ -1,0 +1,119 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>leave a message</title>
+</head>
+<style>
+body
+{
+	text-align:center;
+}
+.error
+{
+	color:#FF0000;
+}
+</style>
+<body>
+<a href="./index.html">=home=</a>
+<a href="./msg_main.php">=leave a message=</a>
+<a href="./about.html">=about=</a>
+</br>
+
+<h1>Leave a message!</h1>
+<p style="color:#FF0000">Warning:Everybody can see your message!</p>
+<!--<h3>You message will be sent to 2648835642@qq.com automatically</h3>-->
+<p style="color:#FF00FF">If you:
+<ol>
+	<li>Want to give me some advice</li>
+	<li>Found a bug in my game or website</li>
+	<li>Found spelling error or else in my game or web</li>
+	<li>Just for fun</li>
+</ol>
+</p>
+<p>Just leave a message!</br></p>
+
+
+
+
+
+<form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>" method="post">
+Name:<span class="error">max 20,must</span><input type="text" name="name" value=<?php if($_SERVER["REQUEST_METHOD"] == "POST"){echo $_POST['name'];}else{echo "";} ?>></br>
+Subject:<span class="error">max 20,must</span><input type="text" name="subject" value=<?php if($_SERVER["REQUEST_METHOD"] == "POST"){echo $_POST['subject'];}else{echo "";} ?>></br>
+Text:<span class="error">max 100,must</span><textarea name="message" style="height:300px;width:600px"><?php if($_SERVER["REQUEST_METHOD"] == "POST"){echo $_POST['message'];}else{echo "";} ?></textarea></br>
+</br>
+<input type="submit" value="submit">
+</form>
+
+<?php
+if ($_SERVER["REQUEST_METHOD"] == "POST")
+{
+	if(strlen($_POST['name'])>20 ||strlen($_POST['name'])==0 || strlen($_POST['subject'])>20 || strlen($_POST['subject'])==0  || strlen($_POST['message'])>100 || strlen($_POST['message'])==0)
+	{
+		if(strlen($_POST['name'])>20 ||strlen($_POST['name'])==0) echo "<script>alert('name error!')</script>";
+		if(strlen($_POST['subject']>20) ||strlen($_POST['subject'])==0) echo "<script>alert('subject error!')</script>";
+		if(strlen($_POST['message'])>100 || strlen($_POST['message'])==0) echo "<script>alert('message error!')</script>";
+	}
+	else
+	{
+		$con=mysqli_connect("127.0.0.1","root","2025","my_db");
+		$n=htmlspecialchars($_POST['name']);
+		$s=htmlspecialchars($_POST['subject']);
+		$m=htmlspecialchars($_POST['message']);
+		$d=date("Y-m-d")." ".date("H").":".date("i").":".date("s");
+		
+		$num=1;
+		$result = mysqli_query($con,"SELECT * FROM msg");
+		while($row = mysqli_fetch_array($result))
+		{
+			$num++;
+		}
+		
+		$sql="INSERT INTO msg (id,name,subject,message,publishtime)
+		VALUES('$num','$n','$s','$m','$d')";
+		if(mysqli_query($con,$sql))
+		{
+			echo "<script>alert('Message send successfully')</script>";
+		}
+		else
+		{
+			echo "<script>alert('Something unpleasant happened.\nPlease try again later.')</script>";
+		}
+		mysqli_close($con);
+	}
+}
+?>
+
+
+
+</br></br>
+<h2>Template</h2>
+<p>
+Name: LM324</br>
+Subject: bug</br>
+Text: You game will crash occasionally when going back to main menu.</br>
+</p>
+</br>
+
+<h2>Message left by others</br></h2>
+<?php
+$con=mysqli_connect("localhost","root","2025","my_db");
+$result = mysqli_query($con,"SELECT * FROM msg");
+while($row = mysqli_fetch_array($result))
+{
+	echo "-------------------------------</br>";
+	echo "Number: ".$row['id']."</br>Left By: ".$row['name']."</br>Subject: ".$row['subject']."</br>".$row['message']."</br>Time:".$row['publishtime'];
+	echo "</br>";
+	echo "-------------------------------</br>";
+}
+echo mysqli_error($con);
+mysqli_close($con);
+?>
+
+
+
+</br></br></br></br></br></br></br>
+<h4>The end.</h4>
+
+
+</body>
+</html>
